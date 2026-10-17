@@ -1,0 +1,23 @@
+name: Lint
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint code-aware check
+        uses: wyl743405571-cpu/lint-tools-action@v1
+        with:
+          lint_api_key: ${{ secrets.LINT_API_KEY }}
+          scan_paths: '**/*.py **/*.js **/*.ts **/*.go **/*.rb **/*.php **/*.md'
+          check_grammar: 'true'
+          check_security: 'true'
+          fail_on_findings: 'false'
+          max_chars: '4000'

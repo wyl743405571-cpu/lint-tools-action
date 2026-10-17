@@ -1,0 +1,50 @@
+name: 'Lint Code-Aware Check'
+description: 'Code-aware grammar + security (CWE) scan for your pull requests. Grammarly breaks your code; Lint does not. Powered by AiCredits Lint.'
+author: 'AiCredits'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+inputs:
+  lint_api_key:
+    description: 'Your AiCredits Lint API key (BYOK). Create one at https://aicreditsapi.com (any paid plan).'
+    required: true
+  github_token:
+    description: 'GitHub token used to post the PR comment. Defaults to the automatic token.'
+    required: false
+    default: ${{ github.token }}
+  scan_paths:
+    description: 'Space-separated glob patterns of files to scan.'
+    required: false
+    default: '**/*.py **/*.js **/*.ts **/*.go **/*.rb **/*.php **/*.md'
+  check_grammar:
+    description: 'Run the code-aware grammar/style check (never flags async/await, identifiers, paths).'
+    required: false
+    default: 'true'
+  check_security:
+    description: 'Run the CWE-cited security scan (SQLi, XSS, secrets, etc.).'
+    required: false
+    default: 'true'
+  fail_on_findings:
+    description: "Exit non-zero when findings exist (useful as a required check)."
+    required: false
+    default: 'false'
+  max_chars:
+    description: 'Max characters sent per file to the API (longer files are truncated).'
+    required: false
+    default: '4000'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - run: python "${{ github.action_path }}/scripts/lint_action.py"
+      shell: bash
+      env:
+        INPUT_LINT_API_KEY: ${{ inputs.lint_api_key }}
+        INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_SCAN_PATHS: ${{ inputs.scan_paths }}
+        INPUT_CHECK_GRAMMAR: ${{ inputs.check_grammar }}
+        INPUT_CHECK_SECURITY: ${{ inputs.check_security }}
+        INPUT_FAIL_ON_FINDINGS: ${{ inputs.fail_on_findings }}
+        INPUT_MAX_CHARS: ${{ inputs.max_chars }}
